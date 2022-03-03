@@ -114,8 +114,6 @@ class matrix
         type **mtx;                                         //динамический массив, в котором хранится введённая информаци
         int n;                                              //количество строк в матрице
         int m;                                              //количество столбцов в матрице
-        int setprecision=matrix_out_setprecision;           //точность после запятой
-        int setw=matrix_out_setw;                           //поле для записи числа
     public:
         matrix();
         matrix(int n, int m);                                           //создаётся объект - матрица n x m
@@ -150,7 +148,6 @@ class matrix
         matrix & replaceString(int number1, int number2);              //поменять строки
         matrix & replaceColumn(int number1, int number2);              //поменять столбцы
 
-        void setout(int setprecision, int setw);                       //параметры вывода
         void addString(int number);                                    //   добавить    строки в конец
         void addColumn(int number);                                    //   добавить    столбцы в конец
         void addString(int pos, int number);                           //   добавить    number строк в позицию pos
@@ -1155,8 +1152,6 @@ matrix<type>::matrix(const matrix<type> &other)
 {
     this->n=other.n;
     this->m=other.m;
-    this->setw=other.setw;
-    this->setprecision=other.setprecision;
 
     this->mtx= new type *[this->n];
     for(int i=0; i<n;i++)
@@ -1367,13 +1362,6 @@ matrix<T2> operator*(const T1 & constant, const matrix<T2> & other)
         }
     }
     return res;
-}
-
-template<class type>
-void matrix<type>::setout(int setprecision, int setw)
-{
-    this->setprecision=setprecision;
-    this->setw=setw;
 }
 
 template<class type>
@@ -1706,7 +1694,7 @@ std::ostream & operator<<(std::ostream &out, const matrix<T> &other)
     {
         for(int j=0;j<other.m;j++)
         {
-            out<<std::setw(other.setw)<<std::fixed<<std::setprecision(other.setprecision)<<other.mtx[i][j];
+            out<<std::setw(matrix_out_setw)<<std::fixed<<std::setprecision(matrix_out_setprecision)<<other.mtx[i][j];
         }
         out<<std::endl;
     }

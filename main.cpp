@@ -55,7 +55,8 @@ std::cout<<std::endl;
     std::cout<<"arg(z)  = "<<cn::arg(z)<<std::endl;
     std::cout<<"con(z)  = "<<cn::con(z)<<std::endl;
 std::cout<<std::endl;
-    z.setout(4,8); a.setout(4,8);                               //чтобы изменить формат вывода, следует вызвать функцию setout
+    cn_out_setw = 4;
+    cn_out_setprecision = 8;
     std::cout<<"z = "<<z<<std::endl;
     std::cout<<"a = "<<a<<std::endl;
 std::cout<<std::endl;
@@ -103,7 +104,8 @@ std::cout<<std::endl;
     std::cout<<"A^T = \n"<<T(A)<<std::endl;
 std::cout<<std::endl;
     cn::complex<float> i(0.0f,1.0f);
-    i.setout(1,5);
+    cn_out_setw = 1;
+    cn_out_setprecision = 5;
 
     matrix<cn::complex<float>> N = {{
         {2.0f+1.0f*i, 1.0f+2.0f*i},

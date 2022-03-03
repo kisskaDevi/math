@@ -53,8 +53,6 @@ namespace cn
         private:
             type Re;                                    //параметр числа - действительная часть
             type Im;                                    //параметр числа - мнимая часть
-            int setprecision=cn_out_setprecision;       //параметр вывода - точность числа после запятой
-            int setw=cn_out_setw;                       //параметр вывода - выделяемое под одно число пространство в консоли
         public:
             complex();                                  //Re=0; Im=0;
             complex(type Re);                           //конструктор задающий толкьо действительную часть
@@ -88,7 +86,6 @@ namespace cn
             template<class T1,class T2> friend complex<T2> operator/(const T1 & C, const complex<T2> & other);   //
 
             void set(type Real, type Imm);                            //задать параметры числа Re & Im
-            void setout(int setprecision, int setw);                  //задать параметры вывода
 
             type Real() const;                  //получить действительную часть
             type Imaginary() const;             //получить мнимую часть
@@ -139,7 +136,6 @@ namespace cn
             int nx;
             int ny;
             cn::complex<type> **z;          //функция от аргумента
-            int setprecision=1, setw=2;     //параметны вывода
         public:
             function(type **x, type **y, cn::complex<type> **z, int nx, int ny);        //конструктор задаёт как аргумент, так и функцию
             function(type **x, type **y, int nx, int ny);                               //конструктор задаёт аргумент, функция задаётся автоматически в виде z=x+iy, удобно использовать как аргумент функций
@@ -171,7 +167,6 @@ namespace cn
             type Im(int i, int j) const;                                      //мнимое значение функции в точке (i;j)
             type abs(int i, int j) const;                                     //модуль функции в точке (i;j)
             type arg(int i, int j) const;                                     //аргумент функции в точке (i;j)
-            void setout(int setprecision, int setw);                          //задать параметры вывода
 
             template<class T> friend std::ostream & operator<< (std::ostream & out, const function<T> & point);  //вывести функцию
 
@@ -209,113 +204,23 @@ namespace cn
 
 namespace cn {
 
-    template <typename type>
-    cn::complex<type>::complex()
-    {
-        this->Re=0;
-        this->Im=0;
-    }
+    template <typename type>    cn::complex<type>::complex()                                                        {   this->Re=0;     this->Im=0;}
+    template <typename type>    cn::complex<type>::complex(type Re)                                                 {   this->Re=Re;    this->Im=0;}
+    template <typename type>    cn::complex<type>::complex(type Re, type Im)                                        {   this->Re=Re;    this->Im=Im;}
+    template <typename type>    cn::complex<type>::~complex()                                                       {}
+    template <typename type>    cn::complex<type>::complex(const complex<type>&other)                               {   this->Re=other.Re;  this->Im=other.Im;}
+    template <typename type>    cn::complex<type> & cn::complex<type>::operator = (const complex<type>&other)       {   this->Re=other.Re;  this->Im=other.Im;  return *this;}
+    template <typename type>    cn::complex<type> & cn::complex<type>::operator = (const type& other)               {   this->Re=other;     this->Im=0;         return *this;}
+    template <typename type>    bool cn::complex<type>::operator == (const complex<type> & other) const             {   return this->Re==other.Re && this->Im==other.Im;}
+    template <typename type>    bool cn::complex<type>:: operator != (const complex<type> & other) const            {   return !(this->Re==other.Re && this->Im==other.Im);}
+    template <typename type>    bool cn::complex<type>:: operator != (type other) const                             {   return !(std::sqrt(Re*Re+Im*Im)==other);}
+    template <typename type>    cn::complex<type> cn::complex<type>:: operator + (const complex<type>&other) const  {   return complex<type>(this->Re + other.Re,this->Im + other.Im);}
+    template <typename type>    cn::complex<type> cn::complex<type>:: operator - (const complex<type>&other) const  {   return complex<type>(this->Re - other.Re,this->Im - other.Im);}
+    template <typename type>    cn::complex<type> cn::complex<type>:: operator - () const                           {   return complex<type>(this->Re*(-1),this->Im*(-1));}
+    template <typename type>    cn::complex<type> cn::complex<type>:: operator * (const complex<type>&other) const  {   return complex<type>(this->Re*other.Re - this->Im*other.Im,this->Re*other.Im + this->Im*other.Re);}
+    template <typename type>    cn::complex<type> cn::complex<type>:: operator * (const type & C) const             {   return complex<type>(this->Re*C, this->Im*C);}
 
-    template <typename type>
-    cn::complex<type>::complex(type Re)
-    {
-        this->Re=Re;
-        this->Im=0;
-    }
-
-    template <typename type>
-    cn::complex<type>::complex(type Re, type Im)
-    {
-        this->Re=Re;
-        this->Im=Im;
-    }
-
-    template <typename type>
-    cn::complex<type>::~complex(){}
-
-    template <typename type>
-    cn::complex<type>::complex(const complex<type>&other)
-    {
-        this->Re=other.Re;
-        this->Im=other.Im;
-        this->setw=other.setw;
-        this->setprecision=other.setprecision;
-    }
-
-    template <typename type>
-    cn::complex<type> & cn::complex<type>::operator = (const complex<type>&other)
-    {
-        this->Re=other.Re;
-        this->Im=other.Im;
-        this->setw=other.setw;
-        this->setprecision=other.setprecision;
-        return *this;
-    }
-
-    template <typename type>
-    cn::complex<type> & cn::complex<type>::operator = (const type& other)
-    {
-        this->Re=other;
-        this->Im=0;
-        return *this;
-    }
-
-    template <typename type>
-    bool cn::complex<type>::operator == (const complex<type> & other) const
-    {
-        return this->Re==other.Re && this->Im==other.Im;
-    }
-
-    template <typename type>
-    bool cn::complex<type>:: operator != (const complex<type> & other) const
-    {
-        return !(this->Re==other.Re && this->Im==other.Im);
-    }
-
-    template <typename type>
-    bool cn::complex<type>:: operator != (type other) const
-    {
-        return !(std::sqrt(Re*Re+Im*Im)==other);
-    }
-
-    template <typename type>
-    cn::complex<type> cn::complex<type>:: operator + (const complex<type>&other) const
-    {
-        complex<type> res(
-        this->Re + other.Re,
-        this->Im + other.Im);
-        return res;
-    }
-
-    template <typename type>
-    cn::complex<type> cn::complex<type>:: operator - (const complex<type>&other) const
-    {
-        complex<type> res(
-        this->Re - other.Re,
-        this->Im - other.Im);
-        return res;
-    }
-
-    template <typename type>
-    cn::complex<type> cn::complex<type>:: operator - () const
-    {
-        complex<type> res(
-        this->Re*(-1),
-        this->Im*(-1));
-        return res;
-    }
-
-    template <typename type>
-    cn::complex<type> cn::complex<type>:: operator * (const complex<type>&other) const
-    {
-        complex<type> res(
-        this->Re*other.Re - this->Im*other.Im,
-        this->Re*other.Im + this->Im*other.Re);
-        return res;
-    }
-
-    template <typename type>
-    cn::complex<type> cn::complex<type>:: operator / (const complex<type>&other) const
+    template <typename type>    cn::complex<type> cn::complex<type>:: operator / (const complex<type>&other) const
     {
         #ifdef zerocheck
             if(other.Re*other.Re+other.Im*other.Im!=0)
@@ -338,15 +243,7 @@ namespace cn {
         #endif
     }
 
-    template <typename type>
-    cn::complex<type> cn::complex<type>:: operator * (const type & C) const
-    {
-        complex<type> res(this->Re*C, this->Im*C);
-        return res;
-    }
-
-    template <typename type>
-    cn::complex<type> cn::complex<type>:: operator / (const type & C) const
+    template <typename type>    cn::complex<type> cn::complex<type>:: operator / (const type & C) const
     {
         #ifdef zerocheck
             if(C!=0)
@@ -367,17 +264,8 @@ namespace cn {
         #endif
     }
 
-    template<typename type>
-    complex<type> & complex<type>::operator +=(const complex<type> &other)
-    {
-        this->Re += other.Re;
-        this->Im += other.Im;
-        return *this;
-    }
-
-
-    template<typename type>
-    complex<type> & complex<type>::operator *=(const complex<type> &other)
+    template<typename type>     cn::complex<type> & complex<type>::operator +=(const complex<type> &other)      {   this->Re += other.Re;this->Im += other.Im;return *this;}
+    template<typename type>     cn::complex<type> & complex<type>::operator *=(const complex<type> &other)
     {
         type re = Re;
         type im = Im;
@@ -386,16 +274,8 @@ namespace cn {
         return *this;
     }
 
-    template<typename type>
-    complex<type> & complex<type>::operator -=(const complex<type> &other)
-    {
-        this->Re -= other.Re;
-        this->Im -= other.Im;
-        return *this;
-    }
-
-    template<typename type>
-    complex<type> & complex<type>::operator /=(const complex<type> &other)
+    template<typename type>     cn::complex<type> & complex<type>::operator -=(const complex<type> &other)      {   this->Re -= other.Re;this->Im -= other.Im;return *this;}
+    template<typename type>     cn::complex<type> & complex<type>::operator /=(const complex<type> &other)
     {
         type re = Re;
         type im = Im;
@@ -404,112 +284,22 @@ namespace cn {
         return *this;
     }
 
-    template <typename type>
-    cn::complex<type> & cn::complex<type>:: operator ++()
-    {
-        this->Re++;
-        this->Im++;
-        return *this;
-    }
+    template <typename type>    cn::complex<type> & cn::complex<type>:: operator ++()                   {   this->Re++;this->Im++;return *this;}
+    template <typename type>    cn::complex<type> & cn::complex<type>:: operator ++(int value)          {   (void)value;this->Re++;this->Im++;return *this;}
+    template <typename type>    cn::complex<type> & cn::complex<type>:: operator --()                   {   this->Re--;this->Im--;return *this;}
+    template <typename type>    cn::complex<type> & cn::complex<type>:: operator --(int value)          {   (void)value;this->Re--;this->Im--;return *this;}
 
-    template <typename type>
-    cn::complex<type> & cn::complex<type>:: operator ++(int value)
-    {
-        (void)value;
-        this->Re++;
-        this->Im++;
-        return *this;
-    }
+    template<class T1,class T2>     complex<T2> operator*(const T1 & C, const complex<T2> & other)      {   return complex<T2>(other.Re*C,other.Im*C);}
+    template<class T1,class T2>     complex<T2> operator+(const T1 & C, const complex<T2> & other)      {   return complex<T2>(C + other.Re,other.Im);}
+    template<class T1,class T2>     complex<T2> operator-(const T1 & C, const complex<T2> & other)      {   return complex<T2>(C - other.Re,- other.Im);}
+    template<class T1,class T2>     complex<T2> operator/(const T1 & C, const complex<T2> & other)      {   return complex<T2>((C*other.Re)/(other.Re*other.Re+other.Im*other.Im),(-C*other.Im)/(other.Re*other.Re+other.Im*other.Im));}
 
-    template <typename type>
-    cn::complex<type> & cn::complex<type>:: operator --()
-    {
-        this->Re--;
-        this->Im--;
-        return *this;
-    }
-
-    template <typename type>
-    cn::complex<type> & cn::complex<type>:: operator --(int value)
-    {
-        (void)value;
-        this->Re--;
-        this->Im--;
-        return *this;
-    }
-
-    template<class T1,class T2>
-    complex<T2> operator*(const T1 & C, const complex<T2> & other)
-    {
-        complex<T2> res(other.Re*C,other.Im*C);
-        res.setw = other.setw;
-        res.setprecision = other.setprecision;
-        return res;
-    }
-
-    template<class T1,class T2>
-    complex<T2> operator+(const T1 & C, const complex<T2> & other)
-    {
-        complex<T2> res(C + other.Re,other.Im);
-        res.setw = other.setw;
-        res.setprecision = other.setprecision;
-        return res;
-    }
-
-    template<class T1,class T2>
-    complex<T2> operator-(const T1 & C, const complex<T2> & other)
-    {
-        complex<T2> res(C - other.Re,- other.Im);
-        res.setw = other.setw;
-        res.setprecision = other.setprecision;
-        return res;
-    }
-
-    template<class T1,class T2>
-    complex<T2> operator/(const T1 & C, const complex<T2> & other)
-    {
-        complex<T2> res(
-        (C*other.Re)/(other.Re*other.Re+other.Im*other.Im),
-        (-C*other.Im)/(other.Re*other.Re+other.Im*other.Im));
-        res.setw = other.setw;
-        res.setprecision = other.setprecision;
-        return res;
-    }
-
-    template<typename type>
-    void complex<type>::setout(int setprecision, int setw)
-    {
-        this->setprecision=setprecision;
-        this->setw=setw;
-    }
-
-    template <typename type>
-    void cn::complex<type>::set(type Real, type Imm)
-    {
-        Re=Real;
-        Im=Imm;
-    }
-
-    template <typename type>
-    type cn::complex<type>::Real() const
-    {
-        return Re;
-    }
-
-    template <typename type>
-    type cn::complex<type>::Imaginary() const
-    {
-        return Im;
-    }
-
-    template <typename type>
-    type cn::complex<type>::abs() const
-    {
-        return sqrt(Re*Re+Im*Im);
-    }
-
-    template <typename type>
-    type cn::complex<type>::arg() const
+    template <typename type>    cn::complex<type> & cn::complex<type>::con()                            {   Im=-Im; return *this;}
+    template <typename type>    void cn::complex<type>::set(type Real, type Imm)                        {   Re=Real;Im=Imm;}
+    template <typename type>    type cn::complex<type>::Real() const                                    {   return Re;}
+    template <typename type>    type cn::complex<type>::Imaginary() const                               {  return Im;}
+    template <typename type>    type cn::complex<type>::abs() const                                     {   return sqrt(Re*Re+Im*Im);}
+    template <typename type>    type cn::complex<type>::arg() const
     {
         type pi=4*std::atan(1);
         type arg;
@@ -543,28 +333,19 @@ namespace cn {
         return arg;
     }
 
-    template <typename type>
-    cn::complex<type> & cn::complex<type>::con()
-    {
-        Im=-Im;
-        return *this;
-    }
-
-    template<class T>
-    std::ostream & operator<<(std::ostream &out, const cn::complex<T> &point)
+    template<class T>   std::ostream & operator<<(std::ostream &out, const cn::complex<T> &point)
     {
         cn::complex<T> z0=point;
         if(std::abs(point.Im)<1e-8){z0.Im=0;}
         if(std::abs(point.Re)<1e-8){z0.Re=0;}
         if(z0.Im<0)
-            out <<std::setw(point.setw)<<std::fixed<<std::setprecision(point.setprecision)<<z0.Re<<"-"<<std::setw(point.setw)<<std::abs(z0.Im)<<"i";
+            out <<std::setw(cn_out_setw)<<std::fixed<<std::setprecision(cn_out_setprecision)<<z0.Re<<"-"<<std::setw(cn_out_setw)<<std::abs(z0.Im)<<"i";
         else
-            out <<std::setw(point.setw)<<std::fixed<<std::setprecision(point.setprecision)<<z0.Re<<"+"<<std::setw(point.setw)<<z0.Im<<"i";
+            out <<std::setw(cn_out_setw)<<std::fixed<<std::setprecision(cn_out_setprecision)<<z0.Re<<"+"<<std::setw(cn_out_setw)<<z0.Im<<"i";
         return out;
     }
 
-    template<class T>
-    std::istream & operator>>(std::istream &in, cn::complex<T> &point)
+    template<class T>   std::istream & operator>>(std::istream &in, cn::complex<T> &point)
     {
         std::cout<<"Re = ";
         in >> point.Re;
@@ -573,35 +354,12 @@ namespace cn {
         return in;
     }
 
-    template<class T>
-    cn::complex<T> con(const complex<T> & z)
-    {
-        cn::complex<T> z0(z);
-        z0.Re=z.Re;
-        z0.Im=-z.Im;
-        return z0;
-    }
+    template<class T>   cn::complex<T> con(const complex<T> & z)    {   return cn::complex<T>(z.Re,-z.Im);}
 
-    template<class T>
-    T Re(const complex<T> & z)
-    {
-        return z.Re;
-    }
-
-    template<class T>
-    T Im(const complex<T> & z)
-    {
-        return z.Im;
-    }
-
-    template<class T>
-    T abs(const complex<T> & z)
-    {
-        return sqrt(z.Re*z.Re+z.Im*z.Im);
-    }
-
-    template<class T>
-    T arg(const complex<T> & z)
+    template<class T>   T Re(const complex<T> & z)                  {   return z.Re;}
+    template<class T>   T Im(const complex<T> & z)                  {   return z.Im;}
+    template<class T>   T abs(const complex<T> & z)                 {return sqrt(z.Re*z.Re+z.Im*z.Im);}
+    template<class T>   T arg(const complex<T> & z)
     {
         T pi=4*std::atan(1);
         T arg;
@@ -635,186 +393,75 @@ namespace cn {
         return arg;
     }
 
-    template<class T>
-    complex<T> exp(const complex<T>& z)
-    {
-        cn::complex<T> z0(z);
-        z0.Re=std::exp(z.Re)*std::cos(z.Im);
-        z0.Im=std::exp(z.Re)*std::sin(z.Im);
-        return z0;
-    }
+    template<typename type> complex<type> &complex<type>::exp()             {   return *this = complex<type>(std::exp(Re)*std::cos(Im), std::exp(Re)*std::sin(Im));}
 
-    template<typename type>
-    complex<type> &complex<type>::exp()
-    {
-        type re = Re;
-        type im = Im;
-        this->Re=std::exp(re)*std::cos(im);
-        this->Im=std::exp(re)*std::sin(im);
-        return *this;
-    }
+    template<class T>   complex<T> exp(const complex<T>& z)                 {   return cn::complex<T>(std::exp(z.Re)*std::cos(z.Im),    std::exp(z.Re)*std::sin(z.Im));}
+    template<class T>   complex<T> Ln(const complex<T> & z, int k)          {   T pi=4*atan(1); return cn::complex<T>(std::log(abs(z)), arg(z)+2*pi*k);}
+    template<class T>   complex<T> pow(const complex<T> & z, T deg, int k)  {   T pi=4*atan(1); return cn::complex<T>(std::pow(abs(z),deg)*std::cos(deg*(arg(z)+2*pi*k)), std::pow(abs(z),deg)*std::sin(deg*(arg(z)+2*pi*k)));}
+    template<class T>   complex<T> sin(const complex<T> & z)                {   return cn::complex<T>(std::sin(z.Re)*std::cosh(z.Im),   std::cos(z.Re)*std::sinh(z.Im));}
+    template<class T>   complex<T> cos(const complex<T> & z)                {   return cn::complex<T>(std::cos(z.Re)*std::cosh(z.Im),   -std::sin(z.Re)*std::sinh(z.Im));}
+    template<class T>   complex<T> tg(const complex<T> & z)                 {   return cn::sin(z)/cn::cos(z);}
+    template<class T>   complex<T> ctg(const complex<T> & z)                {   return cn::cos(z)/cn::sin(z);}
+    template<class T>   complex<T> sinh(const complex<T> & z)               {   return (cn::exp(z)-cn::exp(-z))/2;}
+    template<class T>   complex<T> cosh(const complex<T> & z)               {   return (cn::exp(z)+cn::exp(-z))/2;}
+    template<class T>   complex<T> tgh(const complex<T> & z)                {   return cn::sinh(z)/cn::cosh(z);}
+    template<class T>   complex<T> ctgh(const complex<T> & z)               {   return cn::cosh(z)/cn::sinh(z);}
 
-    template<class T>
-    complex<T> Ln(const complex<T> & z, int k)
+    template<class T>   complex<T> Arcsin(const complex<T> & z, int k, int root)
     {
-        T pi=4*atan(1);
-        cn::complex<T> z0(z);
-        z0.Re=std::log(abs(z));
-        z0.Im=arg(z)+2*pi*k;
-        return z0;
-    }
-
-    template<class T>
-    complex<T> pow(const complex<T> & z, T deg, int k)
-    {
-        T pi=4*atan(1);
-        cn::complex<T> z0(z);
-        z0.Re=std::pow(abs(z),deg)*std::cos(deg*(arg(z)+2*pi*k));
-        z0.Im=std::pow(abs(z),deg)*std::sin(deg*(arg(z)+2*pi*k));
-        return z0;
-    }
-
-    template<class T>
-    complex<T> sin(const complex<T> & z)
-    {
-        cn::complex<T> z0(z);
-        z0.Re=std::sin(z.Re)*std::cosh(z.Im);
-        z0.Im=std::cos(z.Re)*std::sinh(z.Im);
-        return z0;
-    }
-
-    template<class T>
-    complex<T> cos(const complex<T> & z)
-    {
-        cn::complex<T> z0(z);
-        z0.Re=std::cos(z.Re)*std::cosh(z.Im);
-        z0.Im=-std::sin(z.Re)*std::sinh(z.Im);
-        return z0;
-    }
-
-    template<class T>
-    complex<T> tg(const complex<T> & z)
-    {
-        cn::complex<T> z0(z);
-        z0=cn::sin(z)/cn::cos(z);
-        return z0;
-    }
-
-    template<class T>
-    complex<T> ctg(const complex<T> & z)
-    {
-        cn::complex<T> z0(z);
-        z0=cn::cos(z)/cn::sin(z);
-        return z0;
-    }
-
-    template<class T>
-    complex<T> sinh(const complex<T> & z)
-    {
-        cn::complex<T> z0(z);
-        z0=cn::exp(z)-cn::exp(-z);
-        return z0/2;
-    }
-
-    template<class T>
-    complex<T> cosh(const complex<T> & z)
-    {
-        cn::complex<T> z0(z);
-        z0=cn::exp(z)+cn::exp(-z);
-        return z0/2;
-    }
-
-    template<class T>
-    complex<T> tgh(const complex<T> & z)
-    {
-        cn::complex<T> z0(z);
-        z0=cn::sinh(z)/cn::cosh(z);
-        return z0;
-    }
-
-    template<class T>
-    complex<T> ctgh(const complex<T> & z)
-    {
-        cn::complex<T> z0(z);
-        z0=cn::cosh(z)/cn::sinh(z);
-        return z0;
-    }
-
-    template<class T>
-    complex<T> Arcsin(const complex<T> & z, int k, int root)
-    {
-        cn::complex<T> z0(z);
         cn::complex<T> i(0,1);
         cn::complex<T> one(1,0);
         T deg=std::sin(2*std::atan(1)/3);
-        return z0=-i*cn::Ln(i*z+cn::pow(one-z*z,deg,root),k);
+        return -i*cn::Ln(i*z+cn::pow(one-z*z,deg,root),k);
     }
 
-    template<class T>
-    complex<T> Arccos(const complex<T> & z, int k, int root)
+    template<class T>   complex<T> Arccos(const complex<T> & z, int k, int root)
     {
-        cn::complex<T> z0(z);
         cn::complex<T> i(0,1);
         cn::complex<T> one(1,0);
         cn::complex<T> pi(4*atan(1),0);
         T deg=std::sin(2*std::atan(1)/3);
-        return z0=pi/2+i*cn::Ln(i*z+cn::pow(one-z*z,deg,root),k);
+        return pi/2+i*cn::Ln(i*z+cn::pow(one-z*z,deg,root),k);
     }
 
-    template<class T>
-    complex<T> Arctg(const complex<T> & z, int k)
+    template<class T>   complex<T> Arctg(const complex<T> & z, int k)
     {
-        cn::complex<T> z0(z);
         cn::complex<T> i(0,1);
         cn::complex<T> one(1,0);
-        return z0=-i*cn::Ln((one+i*z)/(one-i*z),k)/2;
+        return -i*cn::Ln((one+i*z)/(one-i*z),k)/2;
     }
 
-    template<class T>
-    complex<T> Arcctg(const complex<T> & z, int k)
+    template<class T>   complex<T> Arcctg(const complex<T> & z, int k)
     {
-        cn::complex<T> z0(z);
         cn::complex<T> i(0,1);
         cn::complex<T> one(1,0);
-        return z0=-i*cn::Ln((i*z-one)/(i*z+one),k)/2;
+        return -i*cn::Ln((i*z-one)/(i*z+one),k)/2;
     }
 
-    template<class T>
-    complex<T> Arcsinh(const complex<T> & z, int k, int root)
+    template<class T>   complex<T> Arcsinh(const complex<T> & z, int k, int root)
     {
-        cn::complex<T> z0(z);
-        cn::complex<T> i(0,1);
         cn::complex<T> one(1,0);
         T deg=std::sin(2*std::atan(1)/3);
-        return z0=cn::Ln(z+cn::pow(one+z*z,deg,root),k);
+        return cn::Ln(z+cn::pow(one+z*z,deg,root),k);
     }
 
-    template<class T>
-    complex<T> Arccosh(const complex<T> & z, int k, int root)
+    template<class T>   complex<T> Arccosh(const complex<T> & z, int k, int root)
     {
-        cn::complex<T> z0(z);
-        cn::complex<T> i(0,1);
         cn::complex<T> one(1,0);
         T deg=std::sin(2*std::atan(1)/3);
-        return z0=cn::Ln(z+cn::pow(z*z-one,deg,root),k);
+        return cn::Ln(z+cn::pow(z*z-one,deg,root),k);
     }
 
-    template<class T>
-    complex<T> Arctgh(const complex<T> & z, int k)
+    template<class T>   complex<T> Arctgh(const complex<T> & z, int k)
     {
-        cn::complex<T> z0(z);
-        cn::complex<T> i(0,1);
         cn::complex<T> one(1,0);
-        return z0=cn::Ln((one+z)/(one-z),k)/2;
+        return cn::Ln((one+z)/(one-z),k)/2;
     }
 
-    template<class T>
-    complex<T> Arcctgh(const complex<T> & z, int k)
+    template<class T>   complex<T> Arcctgh(const complex<T> & z, int k)
     {
-        cn::complex<T> z0(z);
-        cn::complex<T> i(0,1);
         cn::complex<T> one(1,0);
-        return z0=cn::Ln((z+one)/(z-one),k)/2;
+        return cn::Ln((z+one)/(z-one),k)/2;
     }
 
     //=============================================================================//
@@ -868,8 +515,6 @@ namespace cn {
     template<typename type>
     cn::function<type>::function(const cn::function<type> & other) : complex<type>(other)
     {
-        this->setprecision=other.setprecision;
-        this->setw=other.setw;
         this->nx = other.nx;
         this->ny = other.ny;
         this->x = new type*[nx];
@@ -885,7 +530,6 @@ namespace cn {
                 this->x[i][j]=other.x[i][j];
                 this->y[i][j]=other.y[i][j];
                 this->z[i][j]=other.z[i][j];
-                this->z[i][j].setout(setprecision,setw);
             }
         }
     }
@@ -1055,8 +699,6 @@ namespace cn {
     template<typename type>
     function<type> & function<type>::operator =(const function<type> &other)
     {
-        setprecision=other.setprecision;
-        setw=other.setw;
         if(this->x!=nullptr)
         {
             for(int i=0; i<nx;i++)
@@ -1096,7 +738,6 @@ namespace cn {
                 this->x[i][j]=other.x[i][j];
                 this->y[i][j]=other.y[i][j];
                 this->z[i][j]=other.z[i][j];
-                this->z[i][j].setout(setprecision,setw);
             }
         }
         return *this;
@@ -1178,20 +819,6 @@ namespace cn {
     type function<type>::arg(int i, int j) const
     {
         return cn::arg(this->z[i][j]);
-    }
-
-    template<typename type>
-    void function<type>::setout(int setprecision, int setw)
-    {
-        this->setprecision=setprecision;
-        this->setw=setw;
-        for(int i=0;i<nx;i++)
-        {
-            for(int j=0;j<ny;j++)
-            {
-                z[i][j].setout(setprecision,setw);
-            }
-        }
     }
 
     template<class type>
